@@ -1,0 +1,66 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+st.set_page_config(page_title="Data Science Job Posts 2025", layout="wide")
+
+
+df = pd.read_csv(r"C:\Users\USER\Desktop\New folder\data_science_job_posts_2025.csv")
+
+# Title
+st.title("📈 Data Science Job Posts - 2025")
+
+#  filters
+st.sidebar.header(" Filter Options")
+
+selected_job_type = st.sidebar.multiselect("Select Job Type", options=df['job_title'].dropna().unique())
+
+#  filters
+filtered_df = df.copy()
+
+if selected_job_type:
+    filtered_df = filtered_df[filtered_df['job_title'].isin(selected_job_type)]
+
+# Show data preview
+st.subheader("THE DATA")
+st.dataframe(filtered_df.head(10))
+
+#Missing value
+st.header("Missing Values")
+st.write(df.isnull(). sum()) # missing value
+#4
+
+df = df.dropna(inplace = True) # حذف صفوف التي لا زالت تحتوي قيم فارغة
+
+st.subheader("Clean")
+st.dataframe(df)
+# Plot: Job Count by Location
+st.subheader("📍 Job Count by Location")
+location_counts = filtered_df['location'].value_counts().head(10)
+fig1, ax1 = plt.subplots()
+sns.barplot(x=location_counts.values, y=location_counts.index, ax=ax1, palette="viridis")
+ax1.set_xlabel("Number of Jobs")
+ax1.set_ylabel("Location")
+st.pyplot(fig1)
+
+# Plot: Salary Distribution
+if 'salary' in filtered_df.columns:
+    st.subheader(" The Salary ")
+    fig2, ax2 = plt.subplots()
+    sns.histplot(filtered_df['salary'].dropna(), bins=30, kde=True, ax=ax2, color="skyblue")
+    ax2.set_xlabel("Salary")
+    ax2.set_ylabel("Frequency")
+    st.pyplot(fig2)
+
+# 
+st.subheader(" Job Type ")
+job_type_counts = filtered_df['job_title'].value_counts()
+fig3, ax3 = plt.subplots()
+sns.barplot(x=job_type_counts.index, y=job_type_counts.values, ax=ax3, palette="magma")
+ax3.set_xlabel("Job Title")
+ax3.set_ylabel("Number of Jobs")
+plt.xticks(rotation=45)
+st.pyplot(fig3)
+
